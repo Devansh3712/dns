@@ -2,9 +2,9 @@ import argparse
 import socket
 from copy import deepcopy
 
-from dns.answer import Answer
 from dns.header import RCode
 from dns.message import Message
+from dns.record import Record
 
 
 def main(host: str, port: int, resolver: str | None):
@@ -15,7 +15,7 @@ def main(host: str, port: int, resolver: str | None):
         data, source = dns_socket.recvfrom(512)
         request = Message.decode(data)
 
-        answers: list[Answer] = []
+        answers: list[Record] = []
         if resolver:
             resolver_host, resolver_port = resolver.split(":")
             resolver_port = int(resolver_port)

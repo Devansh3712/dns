@@ -22,25 +22,26 @@ class RCode(int, Enum):
     REFUSED = 5
 
 
+#   0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                      ID                       |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                    QDCOUNT                    |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                    ANCOUNT                    |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                    NSCOUNT                    |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                    ARCOUNT                    |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 @dataclass
 class Header:
+    """The header includes fields that specify which of the remaining sections
+    are present, and also specify whether the message is a query or a response.
+    The size of the header is 12 bytes.
     """
-      0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                      ID                       |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    QDCOUNT                    |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    ANCOUNT                    |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    NSCOUNT                    |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                    ARCOUNT                    |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    """
-
     # Packet Identifier
     # A random ID assigned to query packets, response packets must
     # reply with the same ID

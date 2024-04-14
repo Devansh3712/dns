@@ -31,7 +31,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     for domain in args.domain:
-        request.add_question(Question(qname=domain.encode(), qtype=QType.A, qclass=QClass.IN))
+        request.add_question(
+            Question(qname=domain.encode(), qtype=QType.A, qclass=QClass.IN)
+        )
 
     sock.sendto(request.encode(), ("0.0.0.0", 2053))
     data, _ = sock.recvfrom(512)

@@ -48,21 +48,21 @@ class QClass(int, Enum):
     HS = 4  # Hesiod
 
 
+#   0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                                               |
+# /                     QNAME                     /
+# /                                               /
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                     QTYPE                     |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+# |                     QCLASS                    |
+# +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 @dataclass
 class Question:
+    """The question section is used to carry the "question" in most
+    queries (the parameters that define what is being asked).
     """
-      0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                                               |
-    /                     QNAME                     /
-    /                                               /
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                     QTYPE                     |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    |                     QCLASS                    |
-    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-    """
-
     # A domain name represented as a sequence of labels, where each
     # label consists of a length octet followed by the number of octets
     # The domain name terminates with the zero length octet
