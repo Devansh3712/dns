@@ -3,8 +3,8 @@ Domain Name System (DNS) server and client implementation in Python. Supports bu
 
 ```
 
-                Local Host                        |  Foreign
-                                                |
+                Local Host                     |  Foreign
+                                               |
 +---------+               +----------+         |  +--------+
 |         | user queries  |          |queries  |  |        |
 |  User   |-------------->|          |---------|->|Foreign |
@@ -15,9 +15,9 @@ Domain Name System (DNS) server and client implementation in Python. Supports bu
                             |     A            |
             cache additions |     | references |
                             V     |            |
-                            +----------+         |
-                            |  cache   |         |
-                            +----------+         |
+                            +----------+       |
+                            |  cache   |       |
+                            +----------+       |
 
 ```
 
