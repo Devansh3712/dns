@@ -1,9 +1,9 @@
 import argparse
 import socket
 
-from dns.header import *
-from dns.question import *
-from dns.message import *
+from dns.header import Header, RCode
+from dns.question import Question, QClass, QType
+from dns.message import Message
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 request = Message(
@@ -40,4 +40,4 @@ if __name__ == "__main__":
 
     response = Message.decode(data)
     for answer in response.answers:
-        print(f"Domain: {answer.question.qname.decode()}\tIP: {answer.rdata}")
+        print(f"Domain: {answer.qname.decode()}\tIP: {answer.rdata}")

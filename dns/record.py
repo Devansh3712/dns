@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from io import BytesIO
 from socket import inet_aton, inet_ntoa
 
-from .question import Question, QClass, QType
-from .utils import decode_name
+from .question import QClass, QType
+from .utils import encode_name, decode_name
 
 
 #   0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
@@ -32,7 +32,10 @@ class Record:
     format: a variable number of resource records, where the number of
     records is specified in the corresponding count field in the header.
     """
-    question: Question
+
+    qname: bytes
+    qtype: QType
+    qclass: QClass
 
     # The duration in seconds a record can be cached before
     # re-querying
@@ -46,8 +49,10 @@ class Record:
 
     def encode(self) -> bytes:
         return (
-            self.question.encode()
-            + struct.pack("!IH", self.ttl, self.rdlength)
+            encode_name(self.qname)
+            + struct.pack(
+                "!HHIH", self.qtype.value, self.qclass.value, self.ttl, self.rdlength
+            )
             + inet_aton(self.rdata)
         )
 
@@ -59,7 +64,9 @@ class Record:
         rdata = reader.read(rdlength)
 
         return Record(
-            question=Question(qname=qname, qtype=QType(qtype), qclass=QClass(qclass)),
+            qname=qname,
+            qtype=QType(qtype),
+            qclass=QClass(qclass),
             ttl=ttl,
             rdlength=rdlength,
             rdata=inet_ntoa(rdata),
