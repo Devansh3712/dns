@@ -61,13 +61,23 @@ class Record:
         qname = decode_name(reader)
         data = reader.read(10)
         qtype, qclass, ttl, rdlength = struct.unpack("!HHIH", data)
-        rdata = reader.read(rdlength)
+
+        qtype, qclass = QType(qtype), QClass(qclass)
+        rdata = ...
+
+        match qtype:
+            case QType.A:
+                rdata = inet_ntoa(reader.read(rdlength))
+            case QType.NS:
+                rdata = decode_name(reader)
+            case _:
+                rdata = reader.read(rdlength)
 
         return Record(
             qname=qname,
-            qtype=QType(qtype),
-            qclass=QClass(qclass),
+            qtype=qtype,
+            qclass=qclass,
             ttl=ttl,
             rdlength=rdlength,
-            rdata=inet_ntoa(rdata),
+            rdata=rdata,
         )

@@ -28,9 +28,12 @@ class Message:
     RRs that point toward an authoritative name server; the additional
     records section contains RRs which relate to the query.
     """
+
     header: Header
     questions: list[Question] = field(default_factory=list)
     answers: list[Record] = field(default_factory=list)
+    authorities: list[Record] = field(default_factory=list)
+    additionals: list[Record] = field(default_factory=list)
 
     def add_question(self, question: Question):
         self.questions.append(question)
@@ -44,7 +47,10 @@ class Message:
         header = self.header.encode()
         questions = b"".join([question.encode() for question in self.questions])
         answers = b"".join([answer.encode() for answer in self.answers])
-        return header + questions + answers
+        authorities = b"".join([authority.encode() for authority in self.authorities])
+        additionals = b"".join([additional.encode() for additional in self.additionals])
+
+        return header + questions + answers + authorities + additionals
 
     @staticmethod
     def decode(data: bytes) -> "Message":
@@ -52,5 +58,13 @@ class Message:
         header = Header.decode(reader)
         questions = [Question.decode(reader) for _ in range(header.qdcount)]
         answers = [Record.decode(reader) for _ in range(header.ancount)]
+        authorities = [Record.decode(reader) for _ in range(header.nscount)]
+        additionals = [Record.decode(reader) for _ in range(header.arcount)]
 
-        return Message(header=header, questions=questions, answers=answers)
+        return Message(
+            header=header,
+            questions=questions,
+            answers=answers,
+            authorities=authorities,
+            additionals=additionals,
+        )

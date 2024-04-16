@@ -7,7 +7,7 @@ from .utils import encode_name, decode_name
 
 
 class QType(int, Enum):
-    # A host address
+    # A IPv4 host address
     A = 1
     # An authoritative name server
     NS = 2
@@ -39,6 +39,8 @@ class QType(int, Enum):
     MX = 15
     # Text strings
     TXT = 16
+    # A IPv6 host address
+    AAAA = 28
 
 
 class QClass(int, Enum):
@@ -63,6 +65,7 @@ class Question:
     """The question section is used to carry the "question" in most
     queries (the parameters that define what is being asked).
     """
+
     # A domain name represented as a sequence of labels, where each
     # label consists of a length octet followed by the number of octets
     # The domain name terminates with the zero length octet
