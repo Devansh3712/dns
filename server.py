@@ -1,9 +1,22 @@
 import argparse
+import logging
 import socket
 from copy import deepcopy
 
+from redis import Redis
+
 from dns.message import Message
 from dns.record import Record
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format="%(levelname)s: %(asctime)s %(message)s",
+    datefmt="%m-%d-%Y %H:%M:%S",
+    level=logging.INFO,
+)
+
+redis = Redis(host="localhost", port=6379, decode_responses=True)
 
 
 def resolve(resolver: str, request: Message) -> list[Record]:
@@ -15,6 +28,20 @@ def resolve(resolver: str, request: Message) -> list[Record]:
 
     answers: list[Record] = []
     for question in request.questions:
+        name = question.qname.decode()
+        if ip := redis.get(name):
+            answers.append(
+                Record(
+                    qname=question.qname,
+                    qtype=question.qtype,
+                    qclass=question.qclass,
+                    ttl=redis.ttl(name),
+                    rdlength=len(ip),
+                    rdata=ip,
+                )
+            )
+            continue
+
         message = request_header.encode() + question.encode()
         resolver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         resolver_socket.sendto(message, (resolver_host, resolver_port))
@@ -22,6 +49,9 @@ def resolve(resolver: str, request: Message) -> list[Record]:
 
         resolver_response = Message.decode(data)
         answers.extend(resolver_response.answers)
+
+        for answer in resolver_response.answers:
+            redis.setex(answer.qname.decode(), answer.ttl, answer.rdata)
 
     return answers
 
@@ -33,6 +63,7 @@ def main(host: str, port: int, resolver: str | None):
     while True:
         data, source = dns_socket.recvfrom(512)
         request = Message.decode(data)
+        logger.info(request.questions)
 
         if resolver:
             answers = resolve(resolver, request)
