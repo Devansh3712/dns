@@ -5,6 +5,7 @@ from copy import deepcopy
 
 from redis import Redis
 
+from config import env
 from dns.message import Message
 from dns.record import Record
 
@@ -16,7 +17,7 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
-redis = Redis(host="localhost", port=6379, decode_responses=True)
+redis = Redis(host=env.REDIS_HOST, port=env.REDIS_PORT, decode_responses=True)
 
 
 def resolve(resolver: str, request: Message) -> list[Record]:
@@ -84,9 +85,11 @@ def main(host: str, port: int, resolver: str | None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--host", type=str, default="0.0.0.0", help="host to run server on"
+        "--host", type=str, default=env.DNS_HOST, help="host to run server on"
     )
-    parser.add_argument("--port", type=int, default=2053, help="port to run server on")
+    parser.add_argument(
+        "--port", type=int, default=env.DNS_PORT, help="port to run server on"
+    )
     parser.add_argument("--resolver", type=str, help="specify the DNS resolver address")
     args = parser.parse_args()
 
