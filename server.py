@@ -2,9 +2,28 @@ import argparse
 import socket
 from copy import deepcopy
 
-from dns.header import RCode
 from dns.message import Message
 from dns.record import Record
+
+
+def resolve(resolver: str, request: Message) -> list[Record]:
+    resolver_host, resolver_port = resolver.split(":")
+    resolver_port = int(resolver_port)
+
+    request_header = deepcopy(request.header)
+    request_header.qdcount = 1
+
+    answers: list[Record] = []
+    for question in request.questions:
+        message = request_header.encode() + question.encode()
+        resolver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        resolver_socket.sendto(message, (resolver_host, resolver_port))
+        data, _ = resolver_socket.recvfrom(512)
+
+        resolver_response = Message.decode(data)
+        answers.extend(resolver_response.answers)
+
+    return answers
 
 
 def main(host: str, port: int, resolver: str | None):
@@ -15,27 +34,13 @@ def main(host: str, port: int, resolver: str | None):
         data, source = dns_socket.recvfrom(512)
         request = Message.decode(data)
 
-        answers: list[Record] = []
         if resolver:
-            resolver_host, resolver_port = resolver.split(":")
-            resolver_port = int(resolver_port)
+            answers = resolve(resolver, request)
+        else:
+            ...
 
-            rheader = deepcopy(request.header)
-            rheader.qdcount = 1
-
-            for question in request.questions:
-                message = rheader.encode() + question.encode()
-                resolver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                resolver_socket.sendto(message, (resolver_host, resolver_port))
-                data, _ = resolver_socket.recvfrom(512)
-
-                resolver_response = Message.decode(data)
-                answers.extend(resolver_response.answers)
-
-        request.header.qr = 1
-        request.header.qdcount = request.header.ancount = 0
-        request.header.rcode = RCode(4) if request.header.opcode else RCode(0)
-        response = Message(header=request.header)
+        response_header = request.header.to_response()
+        response = Message(header=response_header)
 
         for question in request.questions:
             response.add_question(question)

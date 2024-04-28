@@ -42,6 +42,7 @@ class Header:
     are present, and also specify whether the message is a query or a response.
     The size of the header is 12 bytes.
     """
+
     # Packet Identifier
     # A random ID assigned to query packets, response packets must
     # reply with the same ID
@@ -139,4 +140,21 @@ class Header:
             ancount=ancount,
             nscount=nscount,
             arcount=arcount,
+        )
+
+    def to_response(self) -> "Header":
+        return Header(
+            id=self.id,
+            qr=1,
+            opcode=self.opcode,
+            aa=self.aa,
+            tc=self.tc,
+            rd=self.rd,
+            ra=self.ra,
+            z=self.z,
+            rcode=RCode(4) if self.opcode else RCode(0),
+            qdcount=0,
+            ancount=0,
+            nscount=0,
+            arcount=0,
         )
